@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Alt Express</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#1a3a5c;           /* deep sky-blue navy instead of near-black */
+    --ink-soft:#1e4570;
+    --paper:#F7F5F0;
+    --paper-dim:#EFEBE2;
+    --orange:#E8622C;
+    --orange-deep:#C94F1F;
+    --slate:#4a7fa5;         /* sky-blue tone replaces slate grey */
+    --slate-light:#7aafd4;   /* lighter sky-blue */
+    --sky:#e8f4fd;           /* light sky background accent */
+    --green:#2F8F5B;
+    --line: rgba(26,58,92,0.14);
+    --line-on-dark: rgba(247,245,240,0.16);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    line-height:1.08;
+  }
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+
+  /* =========== NAV =========== */
+  header{
+    position:sticky; top:0; z-index:100;
+    background:rgba(247,245,240,0.96);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 32px; max-width:1180px; margin:0 auto;
+    gap:20px;
+  }
+
+  /* Logo */
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    flex-shrink:0;
+    text-decoration:none;
+  }
+  .logo img{
+    height:44px; width:auto; display:block;
+    border-radius:6px;
+  }
+  .logo-text{display:flex; flex-direction:column; line-height:1.15;}
+  .logo-name{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700; font-size:20px; color:var(--ink);
+    letter-spacing:-0.02em;
+  }
+  .logo-tagline{
+    font-size:10.5px; font-weight:500;
+    color:var(--slate); letter-spacing:0.04em;
+    text-transform:lowercase;
+  }
+
+  /* Desktop nav links */
+  .nav-center{
+    display:flex; align-items:center; gap:4px;
+    flex:1; justify-content:center;
+  }
+  .nav-link{
+    font-size:14.5px; font-weight:500; color:var(--ink);
+    padding:8px 12px; border-radius:6px;
+    display:flex; align-items:center; gap:4px;
+    position:relative;
+    transition:background 0.15s;
+  }
+  .nav-link:hover{background:var(--sky);}
+  .nav-link .chevron{
+    font-size:10px; transition:transform 0.2s;
+  }
+
+  /* Dropdown */
+  .has-dropdown{position:relative;}
+  .has-dropdown:hover .nav-link .chevron,
+  .has-dropdown:focus-within .nav-link .chevron{transform:rotate(180deg);}
+  .dropdown{
+    position:absolute; top:calc(100% + 8px); left:50%;
+    transform:translateX(-50%);
+    min-width:230px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 8px 32px rgba(26,58,92,0.12);
+    padding:8px 0;
+    opacity:0; pointer-events:none;
+    transform:translateX(-50%) translateY(-6px);
+    transition:opacity 0.18s, transform 0.18s;
+    z-index:200;
+  }
+  .has-dropdown:hover .dropdown,
+  .has-dropdown:focus-within .dropdown{
+    opacity:1; pointer-events:auto;
+    transform:translateX(-50%) translateY(0);
+  }
+  .dropdown a{
+    display:block; padding:10px 18px;
+    font-size:14px; color:var(--ink); font-weight:500;
+    transition:background 0.12s;
+  }
+  .dropdown a:hover{background:var(--sky);}
+
+  /* Nav right */
+  .nav-right{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+  .nav-login{
+    font-size:14px; font-weight:500; color:var(--ink);
+    padding:8px 14px; border-radius:6px;
+    transition:background 0.15s;
+  }
+  .nav-login:hover{background:var(--sky);}
+  .nav-cta{
+    background:var(--orange); color:#fff;
+    padding:9px 18px; border-radius:6px; font-size:14px; font-weight:600;
+    transition:background 0.15s;
+    white-space:nowrap;
+  }
+  .nav-cta:hover{background:var(--orange-deep);}
+
+  /* Language selector */
+  .lang-select{
+    font-size:13.5px; font-weight:500; color:var(--slate);
+    border:1px solid var(--line); border-radius:6px;
+    padding:7px 10px; background:transparent; cursor:pointer;
+    font-family:'Inter', sans-serif;
+  }
+  .lang-select:hover{border-color:var(--slate);}
+
+  /* Hamburger */
+  .hamburger{
+    display:none;
+    background:none; border:none; cursor:pointer;
+    padding:6px; border-radius:6px;
+    flex-direction:column; gap:5px; align-items:center; justify-content:center;
+  }
+  .hamburger span{
+    display:block; width:24px; height:2.5px;
+    background:var(--ink); border-radius:2px;
+    transition:transform 0.25s, opacity 0.25s;
+    transform-origin:center;
+  }
+  /* X state */
+  .hamburger.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg);}
+  .hamburger.open span:nth-child(2){opacity:0; transform:scaleX(0);}
+  .hamburger.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg);}
+
+  /* Mobile menu */
+  .mobile-menu{
+    display:none;
+    position:fixed; top:73px; left:0; right:0; bottom:0;
+    background:#fff;
+    overflow-y:auto;
+    z-index:90;
+    padding:16px 20px 40px;
+    flex-direction:column; gap:2px;
+    transform:translateX(100%);
+    transition:transform 0.28s ease;
+  }
+  .mobile-menu.open{transform:translateX(0);}
+  .mobile-menu-link{
+    font-size:16px; font-weight:500; color:var(--ink);
+    padding:14px 12px; border-radius:8px; display:block;
+    transition:background 0.12s;
+  }
+  .mobile-menu-link:hover{background:var(--sky);}
+  .mobile-section-label{
+    font-size:11px; font-weight:700; color:var(--slate);
+    letter-spacing:0.08em; text-transform:uppercase;
+    padding:18px 12px 6px;
+  }
+  .mobile-sub-link{
+    font-size:14.5px; color:var(--ink); font-weight:400;
+    padding:11px 24px; border-radius:6px; display:block;
+    transition:background 0.12s;
+  }
+  .mobile-sub-link:hover{background:var(--sky);}
+  .mobile-divider{height:1px; background:var(--line); margin:12px 0;}
+  .mobile-actions{
+    display:flex; flex-direction:column; gap:10px;
+    padding:16px 12px;
+  }
+  .mobile-btn-primary{
+    background:var(--orange); color:#fff;
+    padding:13px; border-radius:8px; font-size:15px; font-weight:600;
+    text-align:center; display:block;
+  }
+  .mobile-btn-secondary{
+    border:1.5px solid var(--line); color:var(--ink);
+    padding:12px; border-radius:8px; font-size:15px; font-weight:600;
+    text-align:center; display:block;
+  }
+
+  @media (max-width:900px){
+    .nav-center{display:none;}
+    .nav-login{display:none;}
+    .hamburger{display:flex;}
+    .mobile-menu{display:flex;}
+  }
+  @media (max-width:520px){
+    nav{padding:14px 20px;}
+  }
+
+  /* =========== HERO =========== */
+  .hero{
+    padding:88px 0 60px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap:56px;
+    align-items:center;
+  }
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr; gap:48px;} }
+
+  .eyebrow-plain{
+    color:var(--slate); font-size:15px; margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:clamp(38px, 5.4vw, 62px);
+    margin-bottom:22px;
+  }
+  .hero p.lead{
+    font-size:18px; color:var(--slate); max-width:46ch; margin-bottom:32px;
+  }
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:40px;}
+  .btn-primary{
+    background:var(--orange); color:#fff; padding:14px 26px; border-radius:7px;
+    font-weight:600; font-size:15.5px; border:none; cursor:pointer;
+    transition: background 0.15s ease;
+  }
+  .btn-primary:hover{background:var(--orange-deep);}
+  .btn-secondary{
+    background:transparent; color:var(--ink); padding:14px 26px; border-radius:7px;
+    font-weight:600; font-size:15.5px; border:1.5px solid var(--line); cursor:pointer;
+  }
+  .btn-secondary:hover{border-color:var(--ink);}
+
+  .hero-stats{
+    display:flex; gap:36px; padding-top:28px; border-top:1px solid var(--line);
+  }
+  .hero-stats div{display:flex; flex-direction:column;}
+  .hero-stats .num{font-family:'Space Grotesk'; font-weight:700; font-size:26px;}
+  .hero-stats .label{font-size:13.5px; color:var(--slate-light); margin-top:2px;}
+
+  /* Route illustration */
+  .route-art{
+    position:relative;
+    aspect-ratio: 1/1;
+    max-width:480px;
+    margin:0 auto;
+  }
+  .route-art svg{width:100%; height:100%;}
+  .route-path{
+    fill:none; stroke:var(--orange); stroke-width:2.5;
+    stroke-dasharray:6 8; stroke-linecap:round;
+  }
+  .route-node{fill:var(--paper); stroke:var(--ink); stroke-width:2.5;}
+  .route-node.active{fill:var(--orange); stroke:var(--orange);}
+  .route-node.end{fill:var(--green); stroke:var(--green);}
+  .route-label{
+    font-family:'Space Grotesk'; font-size:11px; font-weight:600; fill:var(--slate);
+  }
+
+  /* =========== QUOTE STRIP =========== */
+  .quote-strip{
+    background:var(--ink); color:var(--paper);
+    padding:44px 0;
+  }
+  .quote-form{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap:14px;
+    background:var(--ink-soft);
+    border:1px solid var(--line-on-dark);
+    border-radius:10px;
+    padding:20px;
+  }
+  @media (max-width:820px){ .quote-form{grid-template-columns:1fr 1fr; } }
+  @media (max-width:520px){ .quote-form{grid-template-columns:1fr; } }
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:12.5px; color:var(--slate-light); font-weight:500;}
+  .field select, .field input{
+    background:var(--ink); border:1px solid var(--line-on-dark); border-radius:6px;
+    color:var(--paper); padding:11px 12px; font-size:14.5px; font-family:'Inter';
+  }
+  .quote-form .btn-primary{align-self:end; white-space:nowrap;}
+
+  /* =========== SECTIONS SHARED =========== */
+  section{padding:96px 0;}
+  .section-head{max-width:640px; margin-bottom:56px;}
+  .section-head h2{font-size:clamp(28px,3.6vw,40px); margin-bottom:14px;}
+  .section-head p{color:var(--slate); font-size:16.5px;}
+
+  /* =========== FLOW =========== */
+  .flow{position:relative; padding-left:2px;}
+  .flow-line{
+    position:absolute; left:23px; top:14px; bottom:14px; width:2px;
+    background-image: linear-gradient(to bottom, var(--slate-light) 0, var(--slate-light) 6px, transparent 6px, transparent 12px);
+    background-size: 2px 12px;
+  }
+  .flow-step{position:relative; padding-left:64px; padding-bottom:48px;}
+  .flow-step:last-child{padding-bottom:0;}
+  .flow-marker{
+    position:absolute; left:0; top:0;
+    width:48px; height:48px; border-radius:50%;
+    background:var(--paper); border:2px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk'; font-weight:700; font-size:16px;
+  }
+  .flow-step:nth-child(2) .flow-marker{border-color:var(--orange); color:var(--orange);}
+  .flow-step:nth-child(3) .flow-marker{border-color:var(--orange); color:var(--orange);}
+  .flow-step:last-child .flow-marker{background:var(--green); border-color:var(--green); color:#fff;}
+  .flow-step h3{font-size:20px; margin-bottom:8px;}
+  .flow-step p{color:var(--slate); max-width:52ch; font-size:15.5px;}
+
+  /* =========== SERVICES =========== */
+  .services-grid{display:grid; grid-template-columns: 1.3fr 1fr; gap:20px;}
+  @media (max-width:900px){ .services-grid{grid-template-columns:1fr;} }
+  .service-panel{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:36px;
+    background:var(--paper-dim);
+  }
+  .service-panel.feature{
+    background:var(--ink); color:var(--paper);
+    grid-row: span 2;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .service-panel h3{font-size:22px; margin-bottom:12px;}
+  .service-panel.feature h3{font-size:26px;}
+  .service-panel p{color:var(--slate); font-size:15px; margin-bottom:18px;}
+  .service-panel.feature p{color:var(--slate-light);}
+  .service-tags{display:flex; gap:8px; flex-wrap:wrap;}
+  .tag{font-size:12.5px; padding:5px 11px; border-radius:20px; border:1px solid var(--line); color:var(--slate);}
+  .service-panel.feature .tag{border-color:var(--line-on-dark); color:var(--slate-light);}
+  .services-side{display:flex; flex-direction:column; gap:20px;}
+
+  /* =========== MODULES =========== */
+  .modules{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  }
+  @media (max-width:820px){ .modules{grid-template-columns:repeat(2,1fr);} }
+  .module{background:var(--paper); padding:28px 22px;}
+  .module .code{font-family:'Space Grotesk'; font-weight:700; font-size:13px; color:var(--orange); margin-bottom:10px;}
+  .module h4{font-size:16px; margin-bottom:6px; font-weight:600; font-family:'Inter';}
+  .module p{font-size:13.5px; color:var(--slate);}
+
+  /* =========== TESTIMONIAL =========== */
+  .testimonial{
+    background:var(--sky);
+    border-radius:14px;
+    padding:56px;
+    display:grid; grid-template-columns:auto 1fr; gap:40px; align-items:center;
+    border:1px solid rgba(74,127,165,0.2);
+  }
+  @media (max-width:700px){ .testimonial{grid-template-columns:1fr; padding:36px;} }
+  .testimonial-mark{font-family:'Space Grotesk'; font-size:64px; color:var(--orange); font-weight:700; line-height:1;}
+  .testimonial p{font-size:19px; line-height:1.5; margin-bottom:16px; color:var(--ink);}
+  .testimonial .who{font-size:14px; color:var(--slate); font-weight:600;}
+
+  /* =========== COVERAGE =========== */
+  .coverage-list{display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-top:1px solid var(--line);}
+  @media (max-width:700px){ .coverage-list{grid-template-columns:1fr 1fr;} }
+  .coverage-item{
+    padding:22px 4px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:baseline; font-size:15px;
+  }
+  .coverage-item .region{font-weight:600;}
+  .coverage-item .eta{color:var(--slate); font-size:13.5px;}
+
+  /* =========== CTA BAND =========== */
+  .cta-band{
+    background:var(--orange); color:#fff; text-align:left;
+    border-radius:16px; padding:64px 56px;
+    display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap;
+  }
+  .cta-band h2{font-size:clamp(26px,3.4vw,36px); max-width:520px; color:#fff;}
+  .cta-band .btn-secondary{border-color:rgba(255,255,255,0.5); color:#fff;}
+  .cta-band .btn-secondary:hover{border-color:#fff;}
+
+  /* =========== FOOTER =========== */
+  footer{
+    border-top:1px solid var(--line);
+    padding:56px 0 32px;
+    font-size:14px; color:var(--slate);
+  }
+  .footer-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:32px; margin-bottom:40px;}
+  @media (max-width:700px){ .footer-grid{grid-template-columns:1fr 1fr;} }
+  .footer-grid h4{font-size:13.5px; color:var(--ink); margin-bottom:14px; font-weight:600;}
+  .footer-grid ul{list-style:none; display:flex; flex-direction:column; gap:10px;}
+  .footer-grid ul a:hover{color:var(--ink);}
+  .footer-logo{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .footer-logo img{height:38px; width:auto; border-radius:4px;}
+  .footer-logo-text .name{font-family:'Space Grotesk'; font-weight:700; font-size:18px; color:var(--ink);}
+  .footer-logo-text .tagline{font-size:11px; color:var(--slate); letter-spacing:0.04em;}
+  .footer-bottom{
+    display:flex; justify-content:space-between; padding-top:24px; border-top:1px solid var(--line);
+    flex-wrap:wrap; gap:12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <nav>
+    <!-- Logo (replace logo.png with your actual image file) -->
+    <a href="index.html" class="logo">
+      <img src="logo.png" alt="Alt Express logo" onerror="this.style.display='none'">
+      <div class="logo-text">
+        <span class="logo-name">Alt Express</span>
+        <span class="logo-tagline">courier made easy</span>
+      </div>
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="nav-center">
+      <a href="index.html#quote" class="nav-link">Send Parcels</a>
+
+      <div class="has-dropdown">
+        <a href="index.html#services" class="nav-link">Services <span class="chevron">▾</span></a>
+        <div class="dropdown">
+          <a href="index.html#services">Send Parcel</a>
+          <a href="index.html#services">Track Shipment</a>
+          <a href="index.html#services">Alterexpress-Club</a>
+          <a href="index.html#services">Courier Offer</a>
+          <a href="index.html#services">Complete E-fulfillment Services</a>
+          <a href="index.html#services">Transport Cargo Europe</a>
+          <a href="index.html#services">Fuel Surcharge – Altexpress</a>
+        </div>
+      </div>
+
+      <div class="has-dropdown">
+        <a href="#" class="nav-link">Info <span class="chevron">▾</span></a>
+        <div class="dropdown">
+          <a href="about.html">About Us</a>
+          <a href="faq.html">FAQ</a>
+          <a href="contact.html">Contact</a>
+          <a href="privacy.html">Privacy &amp; Policy</a>
+          <a href="terms.html">Terms &amp; Conditions</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav right -->
+    <div class="nav-right">
+      <a href="#" class="nav-login">Login to account</a>
+      <select class="lang-select" aria-label="Select language">
+        <option value="en">🌐 EN</option>
+        <option value="fr">FR</option>
+        <option value="de">DE</option>
+        <option value="es">ES</option>
+      </select>
+      <a href="index.html#quote" class="nav-cta">Get Offer</a>
+
+      <!-- Hamburger button -->
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- ===== MOBILE MENU ===== -->
+<div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Navigation menu">
+  <a href="index.html#quote" class="mobile-menu-link">Send Parcels</a>
+
+  <span class="mobile-section-label">Services</span>
+  <a href="index.html#services" class="mobile-sub-link">Send Parcel</a>
+  <a href="index.html#services" class="mobile-sub-link">Track Shipment</a>
+  <a href="index.html#services" class="mobile-sub-link">Alterexpress-Club</a>
+  <a href="index.html#services" class="mobile-sub-link">Courier Offer</a>
+  <a href="index.html#services" class="mobile-sub-link">Complete E-fulfillment Services</a>
+  <a href="index.html#services" class="mobile-sub-link">Transport Cargo Europe</a>
+  <a href="index.html#services" class="mobile-sub-link">Fuel Surcharge – Altexpress</a>
+
+  <span class="mobile-section-label">Info</span>
+  <a href="about.html" class="mobile-sub-link">About Us</a>
+  <a href="faq.html" class="mobile-sub-link">FAQ</a>
+  <a href="contact.html" class="mobile-sub-link">Contact</a>
+  <a href="privacy.html" class="mobile-sub-link">Privacy &amp; Policy</a>
+  <a href="terms.html" class="mobile-sub-link">Terms &amp; Conditions</a>
+
+  <div class="mobile-divider"></div>
+
+  <div class="mobile-actions">
+    <a href="#" class="mobile-btn-secondary">Login to account</a>
+    <a href="index.html#quote" class="mobile-btn-primary">Get Offer</a>
+  </div>
+</div>
+
+
+<!-- ===== ABOUT HERO ===== -->
+<section class="hero" style="padding-bottom:0;">
+  <div class="wrap" style="max-width:760px;">
+    <p class="eyebrow-plain">About Alt Express</p>
+    <h1 style="font-size:clamp(34px,4.8vw,52px); max-width:16ch;">Courier made easy, everywhere.</h1>
+    <p class="lead" style="max-width:56ch;">Alt Express started as a routing problem: given a package, a destination, and a dozen possible carriers, which path actually gets it there fastest for the least money? We built the answer, then built a company around it.</p>
+  </div>
+</section>
+
+<section style="padding-top:48px;">
+  <div class="wrap">
+    <div class="hero-stats" style="border-top:1px solid var(--line); padding-top:36px; flex-wrap:wrap; gap:48px;">
+      <div><span class="num">48+</span><span class="label">countries served</span></div>
+      <div><span class="num">99.4%</span><span class="label">on-time delivery</span></div>
+      <div><span class="num">1.2M</span><span class="label">parcels routed / year</span></div>
+      <div><span class="num">120+</span><span class="label">people across two hubs</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How we got here.</h2>
+      <p>The short version of a longer story.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-line"></div>
+      <div class="flow-step">
+        <div class="flow-marker">1</div>
+        <h3>The spreadsheet phase</h3>
+        <p>Our founders were running fulfillment for their own small store, comparing carrier rates by hand every time an order came in. It worked, until order volume made it stop working.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-marker">2</div>
+        <h3>Building the router</h3>
+        <p>We wrote the first version of the rate engine to solve our own problem: automatically pick the cheapest eligible carrier for a given route and weight. Other small shops asked to use it too.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-marker">3</div>
+        <h3>Opening it up</h3>
+        <p>What started as an internal tool became the platform now powering fulfillment for stores that don't want to manage five separate carrier relationships.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-marker">✓</div>
+        <h3>Where we are now</h3>
+        <p>Two fulfillment hubs, direct lanes across six regions, and a growing partner carrier network — still built around the same question: what's the shortest real path for this package?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--paper-dim);">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>What we optimize for.</h2>
+      <p>Three things guide every routing decision and every product choice.</p>
+    </div>
+    <div class="services-grid" style="display:grid; grid-template-columns:1.3fr 1fr; gap:20px;">
+      <div class="service-panel feature">
+        <div>
+          <h3>Visibility over promises</h3>
+          <p>We'd rather show you the real transit estimate for your specific route than promise a number that sounds good and slips. Every quote reflects what actually happens on that lane, not a marketing average.</p>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="service-panel">
+          <h3>No carrier loyalty</h3>
+          <p>We don't own a fleet to protect. If a competitor's lane is faster or cheaper for your route, that's the one we book.</p>
+        </div>
+        <div class="service-panel">
+          <h3>Fewer surprises</h3>
+          <p>One invoice, not five. One dashboard, not five logins. Support that answers, not a ticket queue.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>Want to see how Alt Express would route your shipments?</h2>
+      <a href="contact.html"><button class="btn-secondary">Talk to us</button></a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">
+          <img src="logo.png" alt="Alt Express logo" onerror="this.style.display='none'">
+          <div class="footer-logo-text">
+            <div class="name">Alt Express</div>
+            <div class="tagline">courier made easy</div>
+          </div>
+        </div>
+        <p style="max-width:32ch;">Courier and fulfillment for individuals and growing eCommerce brands.</p>
+      </div>
+      <div>
+        <h4>Services</h4>
+        <ul>
+          <li><a href="index.html#services">Send a parcel</a></li>
+          <li><a href="index.html#services">Track Shipment</a></li>
+          <li><a href="index.html#services">Fulfillment</a></li>
+          <li><a href="index.html#services">Freight</a></li>
+          <li><a href="index.html#platform">Alt Express Control</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy &amp; Policy</a></li>
+          <li><a href="terms.html">Terms &amp; Conditions</a></li>
+          <li><a href="#">Cookie policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Alt Express Courier &amp; Fulfillment</span>
+      <span>Courier made easy.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  // Close mobile menu when a link is clicked
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    });
+  });
+</script>
+
+</body>
+</html>

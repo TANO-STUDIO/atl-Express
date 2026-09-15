@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — Alt Express</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#0f2a2a;
+    --ink-soft:#16453f;
+    --paper:#ffffff;
+    --paper-dim:#f4f7f6;
+    --orange:#1F8578;
+    --orange-deep:#16685E;
+    --slate:#5b7a78;
+    --slate-light:#9db8b5;
+    --sky:#e6f3ee;
+    --green:#2F8F5B;
+    --line: rgba(15,42,42,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 15% 15%, rgba(31,133,120,0.10), transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(31,133,120,0.08), transparent 45%),
+      linear-gradient(180deg, #e6f3ee 0%, #ffffff 55%);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  h1{font-family:'Space Grotesk', sans-serif; font-weight:700;}
+  a{color:inherit; text-decoration:none;}
+
+  @keyframes cardIn{
+    from{ opacity:0; transform:translateY(16px) scale(0.98); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .auth-card{
+    width:100%; max-width:420px;
+    background:#fff; border:1px solid var(--line); border-radius:18px;
+    padding:38px 36px;
+    box-shadow:0 24px 60px rgba(15,42,42,0.12), 0 4px 14px rgba(15,42,42,0.06);
+    animation: cardIn 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  .auth-logo{display:flex; align-items:center; gap:11px; margin-bottom:26px;}
+  .auth-logo img{height:40px; width:auto; border-radius:6px;}
+  .auth-logo .logo-mark{
+    width:38px; height:38px; border-radius:10px; flex-shrink:0;
+    background:linear-gradient(135deg, var(--orange) 0%, #59c8ae 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 14px rgba(31,133,120,0.3);
+  }
+  .auth-logo .logo-mark svg{ width:19px; height:19px; color:#fff; }
+  .auth-logo .name{font-family:'Space Grotesk'; font-weight:700; font-size:17px;}
+  .auth-logo .tagline{font-size:11px; color:var(--slate);}
+
+  .auth-card h1{font-size:22px; margin-bottom:6px;}
+  .auth-card p.sub{color:var(--slate); font-size:14px; margin-bottom:24px;}
+
+  /* Tabs: Sign in / Sign up */
+  .auth-tabs{display:flex; background:var(--paper-dim); border-radius:10px; padding:4px; margin-bottom:24px;}
+  .auth-tab{
+    flex:1; text-align:center; padding:10px; border-radius:7px; font-size:13.5px; font-weight:600;
+    cursor:pointer; color:var(--slate); background:none; border:none;
+    transition:background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .auth-tab.active{background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(15,42,42,0.1);}
+  .auth-tab:hover:not(.active){color:var(--ink);}
+
+  /* Social buttons */
+  .social-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+    padding:11px; border:1px solid var(--line); border-radius:9px; background:#fff;
+    font-size:14px; font-weight:600; color:var(--ink); cursor:pointer; margin-bottom:10px;
+    transition:background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .social-btn:hover{background:var(--paper-dim); border-color:var(--slate-light); transform:translateY(-1px); box-shadow:0 6px 16px rgba(15,42,42,0.08);}
+  .social-btn.coming-soon{opacity:0.55; cursor:not-allowed; position:relative;}
+  .social-btn.coming-soon:hover{background:#fff; transform:none; box-shadow:none;}
+  .social-btn .badge{
+    font-size:10px; background:var(--slate-light); color:#fff; padding:2px 7px;
+    border-radius:10px; margin-left:auto; font-weight:600;
+  }
+  .social-icon{width:18px; height:18px; flex-shrink:0; transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);}
+  .social-btn:hover .social-icon{transform:scale(1.15) rotate(-4deg);}
+
+  .divider{
+    display:flex; align-items:center; gap:12px; margin:22px 0;
+    font-size:12.5px; color:var(--slate-light); text-transform:uppercase; letter-spacing:0.04em;
+  }
+  .divider::before, .divider::after{content:''; flex:1; height:1px; background:var(--line);}
+
+  /* Toggle: password vs magic link */
+  .method-toggle{
+    display:flex; gap:18px; margin-bottom:20px; font-size:13px;
+  }
+  .method-toggle button{
+    background:none; border:none; padding:0; color:var(--slate); cursor:pointer; font-weight:500;
+    border-bottom:2px solid transparent; padding-bottom:5px;
+    transition:color 0.18s ease, border-color 0.18s ease;
+  }
+  .method-toggle button:hover{color:var(--ink);}
+  .method-toggle button.active{color:var(--ink); border-bottom-color:var(--orange); font-weight:600;}
+
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  .field label{font-size:13px; color:var(--slate); font-weight:500;}
+  .field input{
+    border:1px solid var(--line); border-radius:9px;
+    padding:12px 14px; font-size:15px; font-family:'Inter'; color:var(--ink);
+    transition:border-color 0.18s ease, box-shadow 0.18s ease;
+    background:#fff;
+  }
+  .field input:focus{outline:none; border-color:var(--orange); box-shadow:0 0 0 3px rgba(31,133,120,0.12);}
+
+  .password-field-wrap{position:relative;}
+  .password-field-wrap input{padding-right:42px; width:100%;}
+  .password-toggle-btn{
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    background:none; border:none; cursor:pointer; padding:4px;
+    color:var(--slate); display:flex; align-items:center; justify-content:center;
+    transition:color 0.15s ease;
+  }
+  .password-toggle-btn:hover{color:var(--orange);}
+  .password-toggle-btn svg{width:19px; height:19px;}
+
+  .forgot-password-link{
+    display:block; text-align:right; font-size:12.5px; color:var(--slate);
+    margin:-8px 0 16px;
+    transition:color 0.15s ease;
+  }
+  .forgot-password-link:hover{color:var(--orange); text-decoration:underline;}
+
+  .auth-btn{
+    width:100%; background:var(--orange); color:#fff; border:none;
+    padding:13px; border-radius:9px; font-size:15px; font-weight:600;
+    cursor:pointer; margin-top:4px;
+    transition:background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow:0 8px 20px rgba(31,133,120,0.24);
+  }
+  .auth-btn:hover{background:var(--orange-deep); transform:translateY(-1px); box-shadow:0 10px 24px rgba(22,104,94,0.3);}
+  .auth-btn:active{transform:translateY(0);}
+  .auth-btn:disabled{opacity:0.6; cursor:not-allowed; transform:none; box-shadow:none;}
+
+  .auth-status{
+    padding:12px 14px; border-radius:9px; font-size:13.5px; margin-bottom:16px; display:none;
+  }
+  .auth-status.error{background:rgba(200,60,60,0.1); color:#C83C3C; display:block;}
+  .auth-status.info{background:var(--sky); color:var(--ink-soft); display:block;}
+  .auth-status.success{background:rgba(47,143,91,0.1); color:var(--green); display:block;}
+
+  .back-link{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    text-align:center; margin-top:24px;
+    font-size:13.5px; color:var(--slate);
+    transition:color 0.15s ease, gap 0.15s ease;
+  }
+  .back-link:hover{color:var(--orange); gap:9px;}
+
+  .form-section{display:none;}
+  .form-section.active{display:block;}
+
+  /* Forgot password modal */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(15,42,42,0.5);
+    backdrop-filter:blur(3px);
+    align-items:center; justify-content:center; z-index:500; padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  @keyframes modalIn{
+    from{ opacity:0; transform:translateY(12px) scale(0.97); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+  .modal-box{
+    background:#fff; border-radius:16px; padding:32px 30px; max-width:400px; width:100%;
+    position:relative;
+    box-shadow:0 24px 60px rgba(15,42,42,0.2);
+    animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
+  .modal-box h2{font-size:19px; margin-bottom:8px; font-family:'Space Grotesk'; font-weight:700;}
+  .modal-box p.sub{color:var(--slate); font-size:13.5px; margin-bottom:20px; line-height:1.5;}
+  .modal-close-btn{
+    position:absolute; top:16px; right:16px; background:none; border:none;
+    cursor:pointer; color:var(--slate); font-size:16px; padding:4px;
+    transition:color 0.15s ease, transform 0.15s ease;
+  }
+  .modal-close-btn:hover{color:var(--ink); transform:rotate(90deg);}
+</style>
+</head>
+<body>
+
+<div class="auth-card">
+  <div class="auth-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg>
+    </div>
+    <div>
+      <div class="name">Alt Express</div>
+      <div class="tagline">my account</div>
+    </div>
+  </div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" data-mode="signin">Sign In</button>
+    <button class="auth-tab" data-mode="signup">Sign Up</button>
+  </div>
+
+  <div id="authStatus" class="auth-status"></div>
+
+  <!-- Social logins -->
+  <button class="social-btn" id="googleBtn">
+    <svg class="social-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Continue with Google
+  </button>
+  <button class="social-btn" id="facebookBtn">
+    <svg class="social-icon" viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.89v2.25h3.32l-.53 3.49h-2.79V24C19.61 23.09 24 18.1 24 12.07z"/></svg>
+    Continue with Facebook
+  </button>
+  <button class="social-btn coming-soon" id="appleBtn" disabled>
+    <svg class="social-icon" viewBox="0 0 24 24"><path fill="#000" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.55-1.71-2.51-3.02-7.11-1.26-10.21.87-1.54 2.44-2.51 4.14-2.53 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.92.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.02 2.68 4.03-.02.07-.42 1.44-1.4 2.85M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+    Continue with Apple
+    <span class="badge">Coming soon</span>
+  </button>
+
+  <div class="divider">or</div>
+
+  <!-- Sign In section -->
+  <div class="form-section active" id="signinSection">
+    <div class="method-toggle">
+      <button class="active" data-method="password" data-form="signin">Password</button>
+      <button data-method="magiclink" data-form="signin">Magic Link</button>
+    </div>
+
+    <form id="signinPasswordForm">
+      <div class="field">
+        <label for="siEmail">Email</label>
+        <input id="siEmail" type="email" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="siPassword">Password</label>
+        <div class="password-field-wrap">
+          <input id="siPassword" type="password" required placeholder="••••••••">
+          <button type="button" class="password-toggle-btn" data-target="siPassword" aria-label="Show password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <a href="#" class="forgot-password-link" id="forgotPasswordLink">Forgot password?</a>
+      <button type="submit" class="auth-btn" id="siPasswordBtn">Sign in</button>
+    </form>
+
+    <form id="signinMagicForm" style="display:none;">
+      <div class="field">
+        <label for="siMagicEmail">Email</label>
+        <input id="siMagicEmail" type="email" required placeholder="you@example.com">
+      </div>
+      <button type="submit" class="auth-btn" id="siMagicBtn">Send magic link</button>
+    </form>
+  </div>
+
+  <!-- Sign Up section -->
+  <div class="form-section" id="signupSection">
+    <div class="method-toggle">
+      <button class="active" data-method="password" data-form="signup">Password</button>
+      <button data-method="magiclink" data-form="signup">Magic Link</button>
+    </div>
+
+    <form id="signupPasswordForm">
+      <div class="field">
+        <label for="suName">Full name</label>
+        <input id="suName" type="text" required placeholder="Jane Doe">
+      </div>
+      <div class="field">
+        <label for="suEmail">Email</label>
+        <input id="suEmail" type="email" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="suPassword">Password</label>
+        <div class="password-field-wrap">
+          <input id="suPassword" type="password" required placeholder="At least 6 characters" minlength="6">
+          <button type="button" class="password-toggle-btn" data-target="suPassword" aria-label="Show password">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="auth-btn" id="suPasswordBtn">Create account</button>
+    </form>
+
+    <form id="signupMagicForm" style="display:none;">
+      <div class="field">
+        <label for="suMagicName">Full name</label>
+        <input id="suMagicName" type="text" required placeholder="Jane Doe">
+      </div>
+      <div class="field">
+        <label for="suMagicEmail">Email</label>
+        <input id="suMagicEmail" type="email" required placeholder="you@example.com">
+      </div>
+      <button type="submit" class="auth-btn" id="suMagicBtn">Send magic link</button>
+    </form>
+  </div>
+
+  <a href="index.html" class="back-link">← Back to Alt Express</a>
+</div>
+
+<!-- Forgot password modal -->
+<div class="modal-overlay" id="forgotModalOverlay">
+  <div class="modal-box">
+    <button class="modal-close-btn" id="forgotModalClose" aria-label="Close">✕</button>
+    <h2>Reset your password</h2>
+    <p class="sub">Enter your email and we'll send you a link to set a new password — this also works if you originally signed up with Google and want to add email/password sign-in.</p>
+    <div id="forgotStatus" class="auth-status"></div>
+    <form id="forgotPasswordForm">
+      <div class="field">
+        <label for="forgotEmail">Email</label>
+        <input id="forgotEmail" type="email" required placeholder="you@example.com">
+      </div>
+      <button type="submit" class="auth-btn" id="forgotSubmitBtn">Send reset link</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const CUSTOMER_SUPABASE_URL = "https://iynlknwijrxtysinppwh.supabase.co";
+  const CUSTOMER_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5bmxrbndpanJ4dHlzaW5wcHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzM0NzQsImV4cCI6MjEwMzk0OTQ3NH0.YK7lzQQWez2OG3uQTZKaOo-mI9oJQYrgHG0PomlwoMQ";
+  const customerSupabase = window.supabase.createClient(CUSTOMER_SUPABASE_URL, CUSTOMER_SUPABASE_ANON_KEY);
+
+  const authStatus = document.getElementById('authStatus');
+  function showStatus(message, type){
+    authStatus.className = 'auth-status ' + type;
+    authStatus.textContent = message;
+    authStatus.style.display = 'block';
+  }
+  function clearStatus(){
+    authStatus.style.display = 'none';
+  }
+
+  // Redirect if already logged in
+  (async function checkSession(){
+    const { data } = await customerSupabase.auth.getSession();
+    if(data && data.session){
+      window.location.href = 'my-account.html';
+    }
+  })();
+
+  // ---------- Tab switching (Sign In / Sign Up) ----------
+  document.querySelectorAll('.auth-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.auth-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      const mode = tab.dataset.mode;
+      document.getElementById('signinSection').classList.toggle('active', mode === 'signin');
+      document.getElementById('signupSection').classList.toggle('active', mode === 'signup');
+      clearStatus();
+    });
+  });
+
+  // ---------- Method toggling (Password / Magic Link) within each section ----------
+  document.querySelectorAll('.method-toggle button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const formGroup = btn.dataset.form; // 'signin' or 'signup'
+      const method = btn.dataset.method; // 'password' or 'magiclink'
+      document.querySelectorAll('.method-toggle button[data-form="' + formGroup + '"]').forEach(function(b){
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      if(formGroup === 'signin'){
+        document.getElementById('signinPasswordForm').style.display = method === 'password' ? 'block' : 'none';
+        document.getElementById('signinMagicForm').style.display = method === 'magiclink' ? 'block' : 'none';
+      } else {
+        document.getElementById('signupPasswordForm').style.display = method === 'password' ? 'block' : 'none';
+        document.getElementById('signupMagicForm').style.display = method === 'magiclink' ? 'block' : 'none';
+      }
+      clearStatus();
+    });
+  });
+
+  // ---------- Sign in with password ----------
+  document.getElementById('signinPasswordForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    clearStatus();
+    const btn = document.getElementById('siPasswordBtn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+
+    const { error } = await customerSupabase.auth.signInWithPassword({
+      email: document.getElementById('siEmail').value.trim(),
+      password: document.getElementById('siPassword').value
+    });
+
+    btn.disabled = false; btn.textContent = 'Sign in';
+
+    if(error){
+      if(error.message && error.message.toLowerCase().includes('invalid login credentials')){
+        showStatus('That email/password combination isn\'t right — if you originally signed up with Google, use "Continue with Google" above, or use Magic Link instead.', 'error');
+      } else {
+        showStatus(error.message, 'error');
+      }
+      return;
+    }
+    window.location.href = 'my-account.html';
+  });
+
+  // ---------- Sign in with magic link ----------
+  document.getElementById('signinMagicForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    clearStatus();
+    const btn = document.getElementById('siMagicBtn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+
+    const email = document.getElementById('siMagicEmail').value.trim();
+    const { error } = await customerSupabase.auth.signInWithOtp({
+      email: email,
+      options: { emailRedirectTo: window.location.origin + '/my-account.html' }
+    });
+
+    btn.disabled = false; btn.textContent = 'Send magic link';
+
+    if(error){
+      showStatus(error.message, 'error');
+      return;
+    }
+    showStatus('Check your email for a sign-in link.', 'success');
+  });
+
+  // ---------- Sign up with password ----------
+  document.getElementById('signupPasswordForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    clearStatus();
+    const btn = document.getElementById('suPasswordBtn');
+    btn.disabled = true; btn.textContent = 'Creating account...';
+
+    const { error } = await customerSupabase.auth.signUp({
+      email: document.getElementById('suEmail').value.trim(),
+      password: document.getElementById('suPassword').value,
+      options: {
+        data: { full_name: document.getElementById('suName').value.trim() },
+        emailRedirectTo: window.location.origin + '/my-account.html'
+      }
+    });
+
+    btn.disabled = false; btn.textContent = 'Create account';
+
+    if(error){
+      showStatus(error.message, 'error');
+      return;
+    }
+    showStatus('Account created! Check your email to confirm, then sign in.', 'success');
+  });
+
+  // ---------- Sign up with magic link ----------
+  document.getElementById('signupMagicForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    clearStatus();
+    const btn = document.getElementById('suMagicBtn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+
+    const email = document.getElementById('suMagicEmail').value.trim();
+    const { error } = await customerSupabase.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: window.location.origin + '/my-account.html',
+        data: { full_name: document.getElementById('suMagicName').value.trim() }
+      }
+    });
+
+    btn.disabled = false; btn.textContent = 'Send magic link';
+
+    if(error){
+      showStatus(error.message, 'error');
+      return;
+    }
+    showStatus('Check your email for a link to finish signing up.', 'success');
+  });
+
+  // ---------- Social logins ----------
+  document.getElementById('googleBtn').addEventListener('click', async function(){
+    const { error } = await customerSupabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/my-account.html' }
+    });
+    if(error){ showStatus('Google sign-in is not fully configured yet: ' + error.message, 'error'); }
+  });
+
+  document.getElementById('facebookBtn').addEventListener('click', async function(){
+    const { error } = await customerSupabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: { redirectTo: window.location.origin + '/my-account.html' }
+    });
+    if(error){ showStatus('Facebook sign-in is not fully configured yet: ' + error.message, 'error'); }
+  });
+
+  document.getElementById('appleBtn').addEventListener('click', function(){
+    showStatus('Sign in with Apple is coming soon.', 'info');
+  });
+
+  // ---------- Password visibility toggle ----------
+  document.querySelectorAll('.password-toggle-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      const input = document.getElementById(btn.dataset.target);
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+    });
+  });
+
+  // ---------- Forgot password modal ----------
+  const forgotModalOverlay = document.getElementById('forgotModalOverlay');
+  const forgotStatus = document.getElementById('forgotStatus');
+
+  document.getElementById('forgotPasswordLink').addEventListener('click', function(e){
+    e.preventDefault();
+    forgotStatus.style.display = 'none';
+    document.getElementById('forgotEmail').value = document.getElementById('siEmail').value || '';
+    forgotModalOverlay.classList.add('show');
+  });
+
+  document.getElementById('forgotModalClose').addEventListener('click', function(){
+    forgotModalOverlay.classList.remove('show');
+  });
+  forgotModalOverlay.addEventListener('click', function(e){
+    if(e.target === forgotModalOverlay){ forgotModalOverlay.classList.remove('show'); }
+  });
+
+  document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('forgotSubmitBtn');
+    const email = document.getElementById('forgotEmail').value.trim();
+
+    btn.disabled = true; btn.textContent = 'Sending...';
+
+    const { error } = await customerSupabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/customer-login.html'
+    });
+
+    btn.disabled = false; btn.textContent = 'Send reset link';
+
+    forgotStatus.style.display = 'block';
+    if(error){
+      forgotStatus.className = 'auth-status error';
+      forgotStatus.textContent = error.message;
+    } else {
+      forgotStatus.className = 'auth-status success';
+      forgotStatus.textContent = 'Check your email for a link to set your password. This works whether you signed up with email or Google.';
+    }
+  });
+</script>
+
+</body>
+</html>

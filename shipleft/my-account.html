@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — Alt Express</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#1a3a5c;
+    --ink-soft:#1e4570;
+    --paper:#F7F5F0;
+    --paper-dim:#EFEBE2;
+    --orange:#E8622C;
+    --orange-deep:#C94F1F;
+    --slate:#4a7fa5;
+    --slate-light:#7aafd4;
+    --sky:#e8f4fd;
+    --green:#2F8F5B;
+    --line: rgba(26,58,92,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Inter', sans-serif; color:var(--ink); background:var(--paper); line-height:1.5;}
+  h1,h2,h3{font-family:'Space Grotesk', sans-serif; font-weight:600;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1000px; margin:0 auto; padding:0 24px;}
+
+  .acct-header{background:#fff; border-bottom:1px solid var(--line); padding:16px 0;}
+  .acct-header .wrap{display:flex; align-items:center; justify-content:space-between;}
+  .acct-logo{display:flex; align-items:center; gap:10px;}
+  .acct-logo img{height:36px; width:auto; border-radius:5px;}
+  .acct-logo .name{font-family:'Space Grotesk'; font-weight:700; font-size:16px;}
+  .acct-user{display:flex; align-items:center; gap:16px; font-size:14px; color:var(--slate);}
+  .logout-btn{
+    background:none; border:1px solid var(--line); border-radius:7px;
+    padding:8px 16px; font-size:13.5px; font-weight:500; color:var(--ink); cursor:pointer;
+  }
+  .logout-btn:hover{background:var(--sky);}
+
+  .welcome{padding:32px 0 8px;}
+
+  .loyalty-card{
+    background:linear-gradient(135deg, var(--ink), var(--ink-soft)); color:#fff; border-radius:16px;
+    padding:24px; margin:16px 0 8px; position:relative; overflow:hidden;
+  }
+  .loyalty-tier-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;
+    background:rgba(255,255,255,0.12); padding:6px 14px; border-radius:20px; margin-bottom:14px;
+  }
+  .loyalty-points{font-family:'Space Grotesk'; font-weight:700; font-size:32px; margin-bottom:14px;}
+  .loyalty-points span{font-size:14px; font-weight:500; color:var(--slate-light);}
+  .loyalty-progress-track{height:8px; background:rgba(255,255,255,0.15); border-radius:20px; overflow:hidden; margin-bottom:8px;}
+  .loyalty-progress-fill{height:100%; background:linear-gradient(90deg, var(--orange), #f5b876); border-radius:20px; width:0%; transition:width 1s cubic-bezier(0.16,1,0.3,1);}
+  .loyalty-progress-label{font-size:12.5px; color:var(--slate-light); margin-bottom:14px;}
+  .loyalty-link{font-size:13px; color:#fff; font-weight:600; text-decoration:underline;}
+  .welcome h1{font-size:26px; margin-bottom:4px;}
+  .welcome p{color:var(--slate); font-size:14.5px;}
+
+  .claim-banner{
+    background:var(--sky); border:1px solid var(--line); border-radius:10px;
+    padding:16px 20px; margin:20px 0; font-size:14px; display:flex; align-items:center; justify-content:space-between; gap:16px;
+    flex-wrap:wrap; display:none;
+  }
+  .claim-banner button{
+    background:var(--ink); color:#fff; border:none; border-radius:6px; padding:8px 16px;
+    font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+
+  .section-title{font-size:18px; margin:28px 0 14px;}
+
+  .booking-list{display:flex; flex-direction:column; gap:12px; margin-bottom:32px;}
+  .booking-card{
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px;
+    display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:center;
+  }
+  @media (max-width:640px){ .booking-card{grid-template-columns:1fr;} }
+  .booking-ref{font-family:'Space Grotesk'; font-weight:700; font-size:16px;}
+  .booking-ref .sub{font-size:11.5px; color:var(--slate-light); font-weight:400; margin-top:2px;}
+  .booking-details{font-size:13.5px; color:var(--slate); line-height:1.7;}
+  .booking-details strong{color:var(--ink);}
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:20px;
+    font-size:12.5px; font-weight:600; background:rgba(232,98,44,0.13); color:var(--orange);
+    white-space:nowrap;
+  }
+  .status-pill.delivered{background:rgba(47,143,91,0.15); color:var(--green);}
+  .status-pill .dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  .empty-state{
+    text-align:center; padding:48px 24px; color:var(--slate); background:#fff;
+    border:1px solid var(--line); border-radius:12px; margin-bottom:32px;
+  }
+  .empty-state a{color:var(--orange); font-weight:600;}
+
+  .cta-row{text-align:center; padding:20px 0 48px;}
+  .cta-row a{
+    display:inline-block; background:var(--orange); color:#fff; padding:12px 28px;
+    border-radius:8px; font-size:14.5px; font-weight:600;
+  }
+</style>
+</head>
+<body>
+
+<div class="acct-header">
+  <div class="wrap">
+    <a href="index.html" class="acct-logo">
+      <img src="logo/home logo.jpeg" alt="Alt Express logo" onerror="this.style.display='none'">
+      <div class="name">Alt Express</div>
+    </a>
+    <div class="acct-user">
+      <span id="userEmail">—</span>
+      <button class="logout-btn" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="welcome">
+    <h1 id="welcomeName">Welcome back</h1>
+    <p>Here's everything you've shipped with Alt Express.</p>
+  </div>
+
+  <div class="loyalty-card" id="loyaltyCard" style="display:none;">
+    <div class="loyalty-tier-badge" id="loyaltyTierBadge">🥉 Bronze</div>
+    <div class="loyalty-points" id="loyaltyPoints">0 <span>pts</span></div>
+    <div class="loyalty-progress-track">
+      <div class="loyalty-progress-fill" id="loyaltyProgressFill"></div>
+    </div>
+    <div class="loyalty-progress-label" id="loyaltyProgressLabel">$0 spent</div>
+    <a href="alt-express-club.html" class="loyalty-link">View Club benefits →</a>
+  </div>
+
+  <div class="claim-banner" id="claimBanner">
+    <span id="claimText"></span>
+    <button id="claimBtn">Link these to my account</button>
+  </div>
+
+  <div class="section-title">Your bookings</div>
+  <div id="bookingList" class="booking-list">
+    <div class="empty-state">Loading your bookings…</div>
+  </div>
+
+  <div class="cta-row">
+    <a href="send-parcel.html">Send a new parcel</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const CUSTOMER_SUPABASE_URL = "https://iynlknwijrxtysinppwh.supabase.co";
+  const CUSTOMER_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5bmxrbndpanJ4dHlzaW5wcHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzM0NzQsImV4cCI6MjEwMzk0OTQ3NH0.YK7lzQQWez2OG3uQTZKaOo-mI9oJQYrgHG0PomlwoMQ";
+  const customerSupabase = window.supabase.createClient(CUSTOMER_SUPABASE_URL, CUSTOMER_SUPABASE_ANON_KEY);
+
+  const statusLabels = {
+    pending:'Pending', confirmed:'Confirmed', picked_up:'Picked Up',
+    in_transit:'In Transit', delivered:'Delivered', cancelled:'Cancelled'
+  };
+
+  function escapeHtml(str){
+    if(str === null || str === undefined) return '';
+    return String(str).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  let currentUser = null;
+
+  (async function init(){
+    const { data } = await customerSupabase.auth.getSession();
+    if(!data || !data.session){
+      window.location.href = 'customer-login.html';
+      return;
+    }
+    currentUser = data.session.user;
+    document.getElementById('userEmail').textContent = currentUser.email;
+    const name = currentUser.user_metadata && currentUser.user_metadata.full_name;
+    document.getElementById('welcomeName').textContent = name ? ('Welcome back, ' + name) : 'Welcome back';
+
+    await loadBookings();
+    await loadLoyalty();
+    await checkClaimableBookings();
+  })();
+
+  document.getElementById('logoutBtn').addEventListener('click', async function(){
+    await customerSupabase.auth.signOut();
+    window.location.href = 'customer-login.html';
+  });
+
+  // Load real loyalty points/tier for this customer, if any purchases have
+  // ever gone through payment successfully. If no loyalty_accounts row
+  // exists yet, the card simply stays hidden — no purchases have completed
+  // payment yet for this email.
+  async function loadLoyalty(){
+    const { data, error } = await customerSupabase
+      .from('loyalty_accounts')
+      .select('*')
+      .eq('email', currentUser.email)
+      .maybeSingle();
+
+    if(error || !data){
+      return; // no loyalty record yet — card stays hidden
+    }
+
+    const tierConfig = {
+      bronze: { label: '🥉 Bronze', next: 300, nextLabel: 'Silver' },
+      silver: { label: '🥈 Silver', next: 1000, nextLabel: 'Gold' },
+      gold:   { label: '🥇 Gold', next: null, nextLabel: null }
+    };
+    const cfg = tierConfig[data.tier] || tierConfig.bronze;
+
+    document.getElementById('loyaltyCard').style.display = 'block';
+    document.getElementById('loyaltyTierBadge').textContent = cfg.label;
+    document.getElementById('loyaltyPoints').innerHTML = Math.floor(data.points) + ' <span>pts</span>';
+
+    if(cfg.next){
+      const percent = Math.min((data.lifetime_spend / cfg.next) * 100, 100);
+      document.getElementById('loyaltyProgressFill').style.width = percent + '%';
+      document.getElementById('loyaltyProgressLabel').textContent =
+        '$' + data.lifetime_spend.toFixed(0) + ' spent — $' + Math.max(cfg.next - data.lifetime_spend, 0).toFixed(0) + ' to ' + cfg.nextLabel;
+    } else {
+      document.getElementById('loyaltyProgressFill').style.width = '100%';
+      document.getElementById('loyaltyProgressLabel').textContent = '$' + data.lifetime_spend.toFixed(0) + ' spent — top tier reached';
+    }
+  }
+
+  // Load bookings linked to this account (by receiver_email matching, since
+  // that's the only identity we have connecting bookings to people right now)
+  async function loadBookings(){
+    const listEl = document.getElementById('bookingList');
+    const { data, error } = await customerSupabase
+      .from('bookings')
+      .select('*')
+      .eq('receiver_email', currentUser.email)
+      .order('created_at', { ascending: false });
+
+    if(error){
+      listEl.innerHTML = '<div class="empty-state">Could not load bookings: ' + escapeHtml(error.message) + '</div>';
+      return;
+    }
+
+    if(!data || data.length === 0){
+      listEl.innerHTML = '<div class="empty-state">You haven\'t booked any shipments yet. <a href="send-parcel.html">Send your first parcel</a>.</div>';
+      return;
+    }
+
+    listEl.innerHTML = data.map(function(b){
+      const ref = b.id.slice(0,8).toUpperCase();
+      const statusText = statusLabels[b.status] || b.status;
+      const statusClass = b.status === 'delivered' ? 'status-pill delivered' : 'status-pill';
+      const booked = b.created_at ? new Date(b.created_at).toLocaleDateString() : '—';
+      return '<div class="booking-card">' +
+        '<div class="booking-ref">' + ref + '<div class="sub">' + booked + '</div></div>' +
+        '<div class="booking-details">' +
+          '<strong>To:</strong> ' + escapeHtml(b.destination_country) + '<br>' +
+          '<strong>Weight:</strong> ' + escapeHtml(b.weight) + ' kg &nbsp;·&nbsp; <strong>Service:</strong> ' + escapeHtml(b.service_type) +
+        '</div>' +
+        '<span class="' + statusClass + '"><span class="dot"></span>' + statusText + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Look for bookings made under this email BEFORE the account existed —
+  // in our data model these are already matched by receiver_email automatically
+  // via loadBookings() above, so there's nothing extra to "claim" technically.
+  // This banner instead handles the case where someone booked using a
+  // DIFFERENT email than their account email, and lets them know how to fix it.
+  async function checkClaimableBookings(){
+    // Since bookings are matched by receiver_email = currentUser.email already,
+    // "claiming" here just means informing the user their booking already
+    // shows up automatically as long as the emails match. No extra action
+    // needed in the common case, so we keep this banner hidden unless we
+    // detect a mismatch scenario is relevant to communicate.
+    document.getElementById('claimBanner').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

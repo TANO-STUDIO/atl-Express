@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — Alt Express</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#1a3a5c;
+    --ink-soft:#1e4570;
+    --paper:#F7F5F0;
+    --paper-dim:#EFEBE2;
+    --orange:#E8622C;
+    --orange-deep:#C94F1F;
+    --slate:#4a7fa5;
+    --slate-light:#7aafd4;
+    --sky:#e8f4fd;
+    --green:#2F8F5B;
+    --line: rgba(26,58,92,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  h1{font-family:'Space Grotesk', sans-serif; font-weight:700;}
+  a{color:inherit; text-decoration:none;}
+
+  .login-card{
+    width:100%; max-width:420px;
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:40px 36px;
+    box-shadow:0 12px 40px rgba(26,58,92,0.08);
+  }
+  .login-logo{
+    display:flex; align-items:center; gap:10px; margin-bottom:28px;
+  }
+  .login-logo img{height:42px; width:auto; border-radius:6px;}
+  .login-logo-text .name{font-family:'Space Grotesk'; font-weight:700; font-size:18px;}
+  .login-logo-text .tagline{font-size:11px; color:var(--slate); letter-spacing:0.04em;}
+
+  .login-card h1{font-size:22px; margin-bottom:6px;}
+  .login-card p.sub{color:var(--slate); font-size:14.5px; margin-bottom:28px;}
+
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  .field label{font-size:13px; color:var(--slate); font-weight:500;}
+  .field input{
+    border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; font-size:15px; font-family:'Inter';
+    color:var(--ink);
+  }
+  .field input:focus{outline:none; border-color:var(--ink);}
+
+  .login-btn{
+    width:100%; background:var(--orange); color:#fff; border:none;
+    padding:13px; border-radius:8px; font-size:15px; font-weight:600;
+    cursor:pointer; margin-top:8px;
+  }
+  .login-btn:hover{background:var(--orange-deep);}
+  .login-btn:disabled{opacity:0.6; cursor:not-allowed;}
+
+  .login-status{
+    padding:12px 14px; border-radius:8px; font-size:13.5px; margin-bottom:18px; display:none;
+  }
+  .login-status.error{background:rgba(200,60,60,0.1); color:#C83C3C; display:block;}
+  .login-status.info{background:var(--sky); color:var(--ink-soft); display:block;}
+
+  .back-link{
+    display:block; text-align:center; margin-top:24px;
+    font-size:13.5px; color:var(--slate);
+  }
+  .back-link:hover{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-logo">
+    <img src="logo/home logo.jpeg" alt="Alt Express logo" onerror="this.style.display='none'">
+    <div class="login-logo-text">
+      <div class="name">Alt Express</div>
+      <div class="tagline">admin</div>
+    </div>
+  </div>
+
+  <h1>Staff sign in</h1>
+  <p class="sub">Sign in with your Alt Express staff account to manage bookings and rates.</p>
+
+  <div id="loginStatus" class="login-status"></div>
+
+  <form id="loginForm">
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" required placeholder="you@altexpress.example" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" required placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button type="submit" class="login-btn" id="loginBtn">Sign in</button>
+  </form>
+
+  <a href="index.html" class="back-link">← Back to Alt Express</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const ADMIN_SUPABASE_URL = "https://iynlknwijrxtysinppwh.supabase.co";
+  const ADMIN_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5bmxrbndpanJ4dHlzaW5wcHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzM0NzQsImV4cCI6MjEwMzk0OTQ3NH0.YK7lzQQWez2OG3uQTZKaOo-mI9oJQYrgHG0PomlwoMQ";
+  const adminSupabase = window.supabase.createClient(ADMIN_SUPABASE_URL, ADMIN_SUPABASE_ANON_KEY);
+
+  const loginForm = document.getElementById('loginForm');
+  const loginStatus = document.getElementById('loginStatus');
+  const loginBtn = document.getElementById('loginBtn');
+
+  // If already logged in, skip straight to dashboard
+  (async function checkExistingSession(){
+    const { data } = await adminSupabase.auth.getSession();
+    if(data && data.session){
+      window.location.href = 'admin-dashboard.html';
+    }
+  })();
+
+  loginForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    loginStatus.style.display = 'none';
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in...';
+
+    const { data, error } = await adminSupabase.auth.signInWithPassword({ email: email, password: password });
+
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Sign in';
+
+    if(error){
+      loginStatus.className = 'login-status error';
+      loginStatus.textContent = error.message || 'Sign in failed. Check your email and password.';
+      return;
+    }
+
+    window.location.href = 'admin-dashboard.html';
+  });
+</script>
+
+</body>
+</html>
