@@ -2314,7 +2314,17 @@
       <div class="cw-bubble-avatar">🚐</div>
       <div class="cw-bubble">👋 Hi there! How can we help you today? We are available for shipping, tracking, and e-fulfillment questions.</div>
     </div>
-    <div class="cw-messages" id="cwMessages"></div>
+
+    <!-- Lead capture: shown before the visitor can chat -->
+    <div class="cw-lead-form" id="cwLeadForm" style="padding:14px 4px; display:flex; flex-direction:column; gap:10px;">
+      <div class="cw-bubble" style="align-self:flex-start; max-width:90%;">Before we start — what's your name and email, so our team can follow up if we're not online?</div>
+      <input type="text" id="cwLeadName" placeholder="Your name" style="padding:10px 12px; border-radius:8px; border:1px solid var(--line-on-dark, #ccc); font-size:14px; font-family:inherit;">
+      <input type="email" id="cwLeadEmail" placeholder="Your email" style="padding:10px 12px; border-radius:8px; border:1px solid var(--line-on-dark, #ccc); font-size:14px; font-family:inherit;">
+      <button type="button" id="cwLeadSubmit" class="btn-primary" style="padding:10px; border-radius:8px; border:none; cursor:pointer;">Start chatting</button>
+      <div id="cwLeadError" style="color:#ff8080; font-size:13px; display:none;"></div>
+    </div>
+
+    <div class="cw-messages hidden" id="cwMessages"></div>
 
     <!-- Options panel -->
     <div class="cw-options-panel hidden" id="cwOptionsPanel">
@@ -2809,6 +2819,42 @@
     const emojiBtn     = document.getElementById('cwEmojiBtn');
     const emojiPicker  = document.getElementById('cwEmojiPicker');
     const soundToggle  = document.getElementById('cwSoundToggle');
+    const leadForm     = document.getElementById('cwLeadForm');
+    const leadName     = document.getElementById('cwLeadName');
+    const leadEmail    = document.getElementById('cwLeadEmail');
+    const leadSubmit   = document.getElementById('cwLeadSubmit');
+    const leadError    = document.getElementById('cwLeadError');
+
+    const CHAT_SUPABASE_URL = "https://iynlknwijrxtysinppwh.supabase.co";
+    const CHAT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5bmxrbndpanJ4dHlzaW5wcHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzM0NzQsImV4cCI6MjEwMzk0OTQ3NH0.YK7lzQQWez2OG3uQTZKaOo-mI9oJQYrgHG0PomlwoMQ"; // same anon key used on contact.html / customer-login.html
+    const chatSupabase = window.supabase.createClient(CHAT_SUPABASE_URL, CHAT_SUPABASE_ANON_KEY);
+
+    let visitorName  = null;
+    let visitorEmail = null;
+
+    function emailLooksValid(v){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    leadSubmit.addEventListener('click', function(){
+      const name = leadName.value.trim();
+      const email = leadEmail.value.trim();
+      if(!name || !email){
+        leadError.textContent = 'Please enter your name and email.';
+        leadError.style.display = 'block';
+        return;
+      }
+      if(!emailLooksValid(email)){
+        leadError.textContent = 'Please enter a valid email address.';
+        leadError.style.display = 'block';
+        return;
+      }
+      visitorName = name;
+      visitorEmail = email;
+      leadForm.classList.add('hidden');
+      cwMessages.classList.remove('hidden');
+      cwInput.focus();
+    });
 
     let isOpen       = false;
     let isExpanded   = false;
@@ -3022,16 +3068,36 @@
     function sendMessage(){
       const text = cwInput.value.trim();
       if(!text) return;
+      if(!visitorName || !visitorEmail){
+        addMessage('Please enter your name and email above before sending a message.', false);
+        return;
+      }
       playSendSound();
       addMessage(text, true);
       cwInput.value = '';
       cwInput.style.height = 'auto';
       pickerOpen = false;
       emojiPicker.classList.add('hidden');
-      setTimeout(function(){
+
+      chatSupabase.functions.invoke('send-contact-message', {
+        body: {
+          name: visitorName,
+          email: visitorEmail,
+          topic: 'Website chat widget',
+          source: 'chat_widget',
+          message: text
+        }
+      }).then(function(res){
         playReceiveSound();
-        addMessage('Thanks for reaching out! Our team will get back to you shortly. For urgent matters call +1 734 649 1606.', false);
-      }, 1200);
+        if(res.error){
+          addMessage("Sorry, something went wrong sending that. Please try again or use our contact page.", false);
+        } else {
+          addMessage('Thanks for reaching out! Our team will get back to you at ' + visitorEmail + ' shortly. For urgent matters call +1 734 649 1606.', false);
+        }
+      }).catch(function(){
+        playReceiveSound();
+        addMessage("Sorry, something went wrong sending that. Please try again or use our contact page.", false);
+      });
     }
 
     cwInput.addEventListener('input', function(){

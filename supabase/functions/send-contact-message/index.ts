@@ -2,26 +2,26 @@
 // Called directly from the browser (contact.html) when a visitor submits the contact form.
 // Stores the message in contact_messages, then emails you via Resend with
 // reply-to set to the visitor's address so you can just hit Reply to respond.
-
+ 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
+ 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const FROM_EMAIL = Deno.env.get("NOTIFY_FROM_EMAIL") || "Alt Express <onboarding@resend.dev>";
 const CONTACT_INBOX_EMAIL = Deno.env.get("CONTACT_INBOX_EMAIL") || "tanostd@gmail.com";
-
+ 
 const supabaseAdmin = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
-
+ 
 // Needed because, unlike notify-status-change (server-triggered), this
 // function is called directly from the browser.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
+ 
 function escapeHtml(str: string) {
   return str
     .replace(/&/g, "&amp;")
@@ -29,7 +29,7 @@ function escapeHtml(str: string) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
-
+ 
 function buildEmailHtml(name: string, email: string, company: string, topic: string, message: string) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #1a3a5c;">
@@ -48,23 +48,23 @@ function buildEmailHtml(name: string, email: string, company: string, topic: str
     </div>
   `;
 }
-
+ 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-
+ 
   try {
     const payload = await req.json();
-    const { name, email, company, topic, message } = payload;
-
+    const { name, email, company, topic, message, source } = payload;
+ 
     if (!name || !email || !message) {
       return new Response(
         JSON.stringify({ error: "Name, email, and message are required." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
+ 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
       return new Response(
@@ -72,18 +72,25 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
+ 
     // Store the message (best-effort — don't block the email on this)
     const { error: dbError } = await supabaseAdmin
       .from("contact_messages")
-      .insert({ name, email, company: company || null, topic: topic || null, message });
-
+      .insert({
+        name,
+        email,
+        company: company || null,
+        topic: topic || null,
+        message,
+        source: source || "contact_form"
+      });
+ 
     if (dbError) {
       console.error("DB insert error:", dbError);
     }
-
+ 
     const html = buildEmailHtml(name, email, company, topic, message);
-
+ 
     const emailResp = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -98,21 +105,21 @@ serve(async (req) => {
         html: html
       })
     });
-
+ 
     const emailResult = await emailResp.json();
-
+ 
     if (!emailResp.ok) {
       return new Response(
         JSON.stringify({ error: emailResult }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
+ 
     return new Response(
       JSON.stringify({ success: true, emailResult }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
+ 
   } catch (err) {
     return new Response(
       JSON.stringify({ error: err.message }),
@@ -120,3 +127,4 @@ serve(async (req) => {
     );
   }
 });
+ 
