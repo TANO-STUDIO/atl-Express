@@ -1498,9 +1498,9 @@
     const leadSubmit   = document.getElementById('cwLeadSubmit');
     const leadError    = document.getElementById('cwLeadError');
 
-    const CHAT_SUPABASE_URL = "https://iynlknwijrxtysinppwh.supabase.co";
-    const CHAT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5bmxrbndpanJ4dHlzaW5wcHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzM0NzQsImV4cCI6MjEwMzk0OTQ3NH0.YK7lzQQWez2OG3uQTZKaOo-mI9oJQYrgHG0PomlwoMQ"; // same anon key used on contact.html / customer-login.html
-    const chatSupabase = window.supabase.createClient(CHAT_SUPABASE_URL, CHAT_SUPABASE_ANON_KEY);
+    // Reuses the page's existing Supabase client (same project/key) to avoid
+    // creating a second GoTrueClient instance.
+    const chatSupabase = supabaseClient;
 
     let visitorName  = null;
     let visitorEmail = null;
