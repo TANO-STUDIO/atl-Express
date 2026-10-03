@@ -406,13 +406,68 @@
   .spf-label{ font-size:12px; color:var(--slate); font-weight:500; letter-spacing:0.02em; }
   .spf-select-wrap{ position:relative; }
   .spf-select{
-    width:100%; padding:12px 14px;
+    width:100%; padding:12px 26px 12px 14px;
     background:#f5f6f8; border:1.5px solid #e2e5ea;
     border-radius:8px; font-size:15px; color:var(--ink);
     font-family:'Inter'; appearance:none;
     cursor:pointer;
   }
   .spf-select:focus{ outline:none; border-color:var(--green); }
+  .spf-select-wrap::after{
+    content:''; position:absolute; right:10px; top:50%; width:9px; height:9px;
+    border-right:2px solid var(--slate); border-bottom:2px solid var(--slate);
+    transform:translateY(-65%) rotate(45deg); pointer-events:none;
+  }
+
+  /* ===== Custom searchable country dropdown (From / To fields) ===== */
+  .spf-country-wrap{ position:relative; }
+  .spf-country-wrap select{ display:none; }
+  .spf-country-trigger{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; background:#f5f6f8; border:1.5px solid #e2e5ea;
+    border-radius:8px; font-size:15px; color:var(--ink); font-family:'Inter';
+    cursor:pointer; transition:border-color 0.2s ease;
+  }
+  .spf-country-trigger:hover{ border-color:#cdd3db; }
+  .spf-country-wrap.open .spf-country-trigger{ border-color:var(--green); }
+  .spf-country-trigger-left{ display:flex; align-items:center; gap:8px; min-width:0; }
+  .spf-country-trigger-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .spf-country-trigger-flag{ font-size:17px; line-height:1; flex-shrink:0; }
+  .spf-country-caret{
+    width:9px; height:9px; flex-shrink:0;
+    border-right:2px solid var(--slate); border-bottom:2px solid var(--slate);
+    transform:rotate(45deg); transition:transform 0.2s ease;
+  }
+  .spf-country-wrap.open .spf-country-caret{ transform:rotate(-135deg); }
+
+  .spf-country-panel{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:40;
+    background:#fff; border:1.5px solid #e2e5ea; border-radius:10px;
+    box-shadow:0 14px 32px rgba(20,24,30,0.12);
+    opacity:0; transform:translateY(-6px); pointer-events:none;
+    transition:opacity 0.15s ease, transform 0.15s ease;
+    overflow:hidden;
+  }
+  .spf-country-wrap.open .spf-country-panel{
+    opacity:1; transform:translateY(0); pointer-events:auto;
+  }
+  .spf-country-search-wrap{ padding:8px; border-bottom:1px solid #edf0f4; }
+  .spf-country-search{
+    width:100%; padding:9px 12px; border:1.5px solid #e2e5ea; border-radius:7px;
+    font-size:14px; font-family:'Inter'; color:var(--ink); background:#f9fafb;
+  }
+  .spf-country-search:focus{ outline:none; border-color:var(--green); background:#fff; }
+  .spf-country-list{ max-height:230px; overflow-y:auto; padding:6px; }
+  .spf-country-option{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:9px 10px; border-radius:7px; font-size:14.5px; color:var(--ink);
+    cursor:pointer; transition:background 0.12s ease;
+  }
+  .spf-country-option:hover{ background:#f0f2f5; }
+  .spf-country-option.selected{ background:var(--green); color:#fff; }
+  .spf-country-option-flag{ font-size:16px; line-height:1; flex-shrink:0; }
+  .spf-country-option-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .spf-country-empty{ padding:14px 10px; font-size:13.5px; color:var(--slate); text-align:center; }
   .spf-input{
     width:100%; padding:12px 14px;
     background:#f5f6f8; border:1.5px solid #e2e5ea;
@@ -475,12 +530,17 @@
     display:flex; align-items:center; gap:18px; flex-wrap:wrap;
     justify-content:flex-end;
   }
-  .spf-currency-wrap{ margin-right:auto; }
+  .spf-currency-wrap{ margin-right:auto; position:relative; }
   .spf-currency{
-    padding:9px 14px; background:#f5f6f8;
+    padding:9px 30px 9px 14px; background:#f5f6f8;
     border:1.5px solid #e2e5ea; border-radius:8px;
     font-size:14px; color:var(--ink); font-family:'Inter';
     min-width:80px;
+  }
+  .spf-currency-wrap::after{
+    content:''; position:absolute; right:12px; top:50%; width:8px; height:8px;
+    border-right:2px solid var(--slate); border-bottom:2px solid var(--slate);
+    transform:translateY(-65%) rotate(45deg); pointer-events:none;
   }
   .spf-price-area{ display:flex; align-items:baseline; gap:6px; }
   .spf-from-label{ font-size:14px; color:var(--slate); }
@@ -1741,33 +1801,49 @@
       <div class="spf-row spf-row-two">
         <div class="spf-field">
           <label class="spf-label">From / Sender country</label>
-          <div class="spf-select-wrap">
-            <select id="spf-from" class="spf-select">
-              <option value="US">🇺🇸 United States</option>
-              <option value="GB">🇬🇧 United Kingdom</option>
-              <option value="FR">🇫🇷 France</option>
-              <option value="DE">🇩🇪 Germany</option>
-              <option value="CN">🇨🇳 China</option>
-              <option value="AU">🇦🇺 Australia</option>
-              <option value="CA">🇨🇦 Canada</option>
-              <option value="CM">🇨🇲 Cameroon</option>
-              <option value="NG">🇳🇬 Nigeria</option>
+          <div class="spf-country-wrap" id="spf-from-wrap">
+            <select id="spf-from" class="spf-country-native">
+              <option value="US">United States</option>
+              <option value="GB">United Kingdom</option>
+              <option value="CA">Canada</option>
+              <option value="CN">China</option>
+              <option value="AU">Australia</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+              <option value="IT">Italy</option>
+              <option value="ES">Spain</option>
+              <option value="NL">Netherlands</option>
+              <option value="BE">Belgium</option>
+              <option value="AT">Austria</option>
+              <option value="PL">Poland</option>
+              <option value="HU">Hungary</option>
+              <option value="RO">Romania</option>
+              <option value="JP">Japan</option>
+              <option value="MX">Mexico</option>
             </select>
           </div>
         </div>
         <div class="spf-field">
           <label class="spf-label">To / Destination country</label>
-          <div class="spf-select-wrap">
-            <select id="spf-to" class="spf-select">
-              <option value="US">🇺🇸 United States</option>
-              <option value="FR">🇫🇷 France</option>
-              <option value="GB">🇬🇧 United Kingdom</option>
-              <option value="DE">🇩🇪 Germany</option>
-              <option value="CN">🇨🇳 China</option>
-              <option value="AU">🇦🇺 Australia</option>
-              <option value="CA">🇨🇦 Canada</option>
-              <option value="CM">🇨🇲 Cameroon</option>
-              <option value="NG">🇳🇬 Nigeria</option>
+          <div class="spf-country-wrap" id="spf-to-wrap">
+            <select id="spf-to" class="spf-country-native">
+              <option value="US">United States</option>
+              <option value="GB">United Kingdom</option>
+              <option value="CA">Canada</option>
+              <option value="CN">China</option>
+              <option value="AU">Australia</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+              <option value="IT">Italy</option>
+              <option value="ES">Spain</option>
+              <option value="NL">Netherlands</option>
+              <option value="BE">Belgium</option>
+              <option value="AT">Austria</option>
+              <option value="PL">Poland</option>
+              <option value="HU">Hungary</option>
+              <option value="RO">Romania</option>
+              <option value="JP">Japan</option>
+              <option value="MX">Mexico</option>
             </select>
           </div>
         </div>
@@ -1830,7 +1906,7 @@
           <select class="spf-select spf-currency" id="spf-currency">
             <option value="USD">USD</option>
             <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
+            <option value="RON">RON</option>
           </select>
         </div>
         <div class="spf-price-area">
@@ -2574,11 +2650,50 @@
   const SPF_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5bmxrbndpanJ4dHlzaW5wcHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzM0NzQsImV4cCI6MjEwMzk0OTQ3NH0.YK7lzQQWez2OG3uQTZKaOo-mI9oJQYrgHG0PomlwoMQ";
 
 
-  // rate_table stores full country names (e.g. "United States"), but this
-  // form's <select> options use ISO codes as values — map between the two.
+  // Used for quote logging — maps ISO codes to full country names.
   const spfCountryNames = {
-    US: 'United States', GB: 'United Kingdom', FR: 'France', DE: 'Germany',
-    CN: 'China', AU: 'Australia', CA: 'Canada', CM: 'Cameroon', NG: 'Nigeria'
+    US: 'United States', GB: 'United Kingdom', CA: 'Canada', CN: 'China',
+    AU: 'Australia', DE: 'Germany', FR: 'France', IT: 'Italy', ES: 'Spain',
+    NL: 'Netherlands', BE: 'Belgium', AT: 'Austria', PL: 'Poland',
+    HU: 'Hungary', RO: 'Romania', JP: 'Japan', MX: 'Mexico'
+  };
+
+  // Flag emoji for the custom country dropdown (From / To fields).
+  const spfCountryFlags = {
+    US: '🇺🇸', GB: '🇬🇧', CA: '🇨🇦', CN: '🇨🇳', AU: '🇦🇺', DE: '🇩🇪',
+    FR: '🇫🇷', IT: '🇮🇹', ES: '🇪🇸', NL: '🇳🇱', BE: '🇧🇪', AT: '🇦🇹',
+    PL: '🇵🇱', HU: '🇭🇺', RO: '🇷🇴', JP: '🇯🇵', MX: '🇲🇽'
+  };
+
+  // rate_table prices are always stored in USD. These are fixed conversion
+  // rates used to display the quote in the currency the customer picks —
+  // update these numbers periodically to keep them reasonably current.
+  const spfFxRatesFromUSD = {
+    USD: 1,
+    EUR: 0.92,
+    RON: 4.60
+  };
+
+  // Fixed starting prices per package type, per currency, for quantity 1.
+  // "domestic" = origin and destination countries are the same.
+  // "international" = origin and destination countries differ.
+  // For quantity > 1, the price is simply multiplied by the quantity.
+  const spfStartingPrices = {
+    PACKAGE: {
+      USD: { domestic: 9.38,  international: 27.25 },
+      EUR: { domestic: 8.63,  international: 25.07 },
+      RON: { domestic: 42.94, international: 124.81 }
+    },
+    ENVELOPE: {
+      USD: { domestic: 4.69,  international: 13.63 },
+      EUR: { domestic: 4.31,  international: 12.54 },
+      RON: { domestic: 21.47, international: 62.40 }
+    },
+    PALLET: {
+      USD: { domestic: 32.81, international: 95.38 },
+      EUR: { domestic: 30.19, international: 87.75 },
+      RON: { domestic: 150.28, international: 436.82 }
+    }
   };
 
   let spfSupabaseClient = null;
@@ -2588,6 +2703,10 @@
     }
     return spfSupabaseClient;
   }
+  // Exposed so other <script> blocks on this page (e.g. the chat widget)
+  // can reuse this same client instead of creating a second GoTrueClient
+  // instance against the same project/key.
+  window.getAltExpressSupabase = getSpfSupabase;
 
   function spfShowStatus(message, type){
     const statusEl = document.getElementById('spf-status');
@@ -2648,63 +2767,123 @@
     });
   });
 
-  // ---------- Calculate tariff (real Supabase lookup) ----------
+  // ---------- Custom searchable country dropdown (From / To) ----------
+  function initSpfCountryDropdown(wrapId){
+    const wrap = document.getElementById(wrapId);
+    if(!wrap) return;
+    const select = wrap.querySelector('select');
+    const options = Array.from(select.options).map(function(opt){
+      return { code: opt.value, name: opt.textContent, flag: spfCountryFlags[opt.value] || '' };
+    });
+
+    // Build the trigger (closed state) and panel (search + list) markup.
+    const trigger = document.createElement('div');
+    trigger.className = 'spf-country-trigger';
+    trigger.innerHTML =
+      '<span class="spf-country-trigger-left">' +
+        '<span class="spf-country-trigger-name"></span>' +
+      '</span>' +
+      '<span class="spf-country-trigger-right" style="display:flex; align-items:center; gap:8px;">' +
+        '<span class="spf-country-trigger-flag"></span>' +
+        '<span class="spf-country-caret"></span>' +
+      '</span>';
+
+    const panel = document.createElement('div');
+    panel.className = 'spf-country-panel';
+    panel.innerHTML =
+      '<div class="spf-country-search-wrap">' +
+        '<input type="text" class="spf-country-search" placeholder="Search country…" autocomplete="off">' +
+      '</div>' +
+      '<div class="spf-country-list"></div>';
+
+    wrap.appendChild(trigger);
+    wrap.appendChild(panel);
+
+    const nameEl = trigger.querySelector('.spf-country-trigger-name');
+    const flagEl = trigger.querySelector('.spf-country-trigger-flag');
+    const searchInput = panel.querySelector('.spf-country-search');
+    const listEl = panel.querySelector('.spf-country-list');
+
+    function renderList(filterText){
+      const q = (filterText || '').trim().toLowerCase();
+      const filtered = options.filter(function(o){ return o.name.toLowerCase().indexOf(q) !== -1; });
+
+      listEl.innerHTML = '';
+      if(filtered.length === 0){
+        const empty = document.createElement('div');
+        empty.className = 'spf-country-empty';
+        empty.textContent = 'No countries found';
+        listEl.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(function(o){
+        const row = document.createElement('div');
+        row.className = 'spf-country-option' + (o.code === select.value ? ' selected' : '');
+        row.innerHTML =
+          '<span class="spf-country-option-name">' + o.name + '</span>' +
+          '<span class="spf-country-option-flag">' + o.flag + '</span>';
+        row.addEventListener('click', function(){
+          select.value = o.code;
+          select.dispatchEvent(new Event('change'));
+          updateTrigger();
+          closePanel();
+        });
+        listEl.appendChild(row);
+      });
+    }
+
+    function updateTrigger(){
+      const current = options.find(function(o){ return o.code === select.value; }) || options[0];
+      nameEl.textContent = current.name;
+      flagEl.textContent = current.flag;
+    }
+
+    function openPanel(){
+      wrap.classList.add('open');
+      searchInput.value = '';
+      renderList('');
+      setTimeout(function(){ searchInput.focus(); }, 0);
+    }
+
+    function closePanel(){
+      wrap.classList.remove('open');
+    }
+
+    trigger.addEventListener('click', function(){
+      if(wrap.classList.contains('open')){ closePanel(); } else { openPanel(); }
+    });
+
+    searchInput.addEventListener('input', function(){
+      renderList(searchInput.value);
+    });
+
+    searchInput.addEventListener('click', function(e){ e.stopPropagation(); });
+
+    document.addEventListener('click', function(e){
+      if(!wrap.contains(e.target)) closePanel();
+    });
+
+    updateTrigger();
+  }
+
+  initSpfCountryDropdown('spf-from-wrap');
+  initSpfCountryDropdown('spf-to-wrap');
+
+  // ---------- Calculate tariff (fixed starting-price table, no weight lookup) ----------
   document.getElementById('spf-calc-btn').addEventListener('click', async function(){
     spfClearStatus();
     const btn = this;
-    const client = getSpfSupabase();
-
-    if(!client){
-      spfShowStatus('Rate service is not available right now. Please try again shortly.', 'error');
-      return;
-    }
 
     const fromCode = document.getElementById('spf-from').value;
     const toCode = document.getElementById('spf-to').value;
     const origin = spfCountryNames[fromCode] || fromCode;
     const destination = spfCountryNames[toCode] || toCode;
+    const isDomestic = fromCode === toCode;
+    const routeKey = isDomestic ? 'domestic' : 'international';
 
-    // Sum weight across all package rows (each row can have its own weight * quantity)
-    const pkgRows = document.querySelectorAll('#spf-packages .spf-pkg-row');
-    let totalWeight = 0;
-    let hasWeight = false;
-    pkgRows.forEach(function(row){
-      const qty = parseFloat(row.querySelector('.spf-qty').value) || 1;
-      const weight = parseFloat(row.querySelector('.spf-weight').value);
-      if(weight && weight > 0){
-        totalWeight += weight * qty;
-        hasWeight = true;
-      }
-    });
-
-    if(!hasWeight){
-      spfShowStatus('Please enter a weight for at least one package.', 'error');
-      return;
-    }
-
-    const originalLabel = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spf-spinner"></span>Calculating…';
-
-    const { data: rates, error } = await client
-      .from('rate_table')
-      .select('*')
-      .eq('origin', origin)
-      .eq('destination', destination)
-      .lte('weight_min', totalWeight)
-      .gte('weight_max', totalWeight)
-      .limit(1);
-
-    btn.disabled = false;
-    btn.innerHTML = originalLabel;
-
-    if(error){
-      spfShowStatus('Something went wrong fetching rates: ' + error.message, 'error');
-      return;
-    }
-
-    const priceEl = document.getElementById('spf-price');
     const currency = document.getElementById('spf-currency').value;
+    const priceEl = document.getElementById('spf-price');
 
     function popPrice(){
       priceEl.classList.remove('pop');
@@ -2712,26 +2891,59 @@
       priceEl.classList.add('pop');
     }
 
-    if(!rates || rates.length === 0){
-      priceEl.textContent = 'Contact us for a quote';
-      popPrice();
-      spfShowStatus('No standard rate found for ' + origin + ' → ' + destination + ' at ' + totalWeight.toFixed(1) + 'kg yet. Our team can quote this route directly — try Send Parcel or the Courier Offer page.', 'error');
+    // Sum the starting price across every package row: each row's type and
+    // quantity determine its own price (qty 2 = price x2, qty 3 = price x3, etc).
+    const pkgRows = document.querySelectorAll('#spf-packages .spf-pkg-row');
+    let totalUSD = 0;
+    let hasRow = false;
+
+    pkgRows.forEach(function(row){
+      const typeSelect = row.querySelector('.spf-type');
+      const type = (typeSelect ? typeSelect.value : 'PACKAGE').toUpperCase();
+      const qty = parseFloat(row.querySelector('.spf-qty').value) || 1;
+
+      const priceTable = spfStartingPrices[type] || spfStartingPrices.PACKAGE;
+      const basePriceUSD = priceTable.USD[routeKey];
+
+      totalUSD += basePriceUSD * qty;
+      hasRow = true;
+    });
+
+    if(!hasRow){
+      spfShowStatus('Please add at least one package.', 'error');
       return;
     }
 
-    const match = rates[0];
-    priceEl.textContent = 'From ' + Number(match.price).toFixed(2) + ' ' + (match.currency || currency);
-    popPrice();
-    spfShowStatus('Rate found for ' + origin + ' → ' + destination + ' (' + totalWeight.toFixed(1) + 'kg total).', 'success');
+    const originalLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spf-spinner"></span>Calculating…';
 
-    // Log this quote request the same way the rest of the site does
-    client.from('quotes').insert({
-      origin: origin,
-      destination: destination,
-      weight: totalWeight,
-      calculated_rate: match.price,
-      currency: match.currency || currency
-    });
+    // Tiny delay purely so the button's loading state is visible — the
+    // calculation itself is instant since it no longer depends on a lookup.
+    await new Promise(function(resolve){ setTimeout(resolve, 300); });
+
+    btn.disabled = false;
+    btn.innerHTML = originalLabel;
+
+    const fxRate = spfFxRatesFromUSD[currency] || 1;
+    const convertedPrice = totalUSD * fxRate;
+
+    priceEl.textContent = 'From ' + convertedPrice.toFixed(2) + ' ' + currency;
+    popPrice();
+    spfShowStatus('Rate calculated for ' + origin + ' → ' + destination + ' (' + (isDomestic ? 'domestic' : 'international') + ').', 'success');
+
+    // Log this quote request for records, same as before.
+    const client = getSpfSupabase();
+    if(client){
+      client.from('quotes').insert({
+        origin: origin,
+        destination: destination,
+        weight: null,
+        calculated_rate: totalUSD,
+        currency: currency,
+        converted_price: convertedPrice
+      });
+    }
   });
 
   // ---------- Newsletter subscribe ----------
@@ -2825,9 +3037,9 @@
     const leadSubmit   = document.getElementById('cwLeadSubmit');
     const leadError    = document.getElementById('cwLeadError');
 
-    const CHAT_SUPABASE_URL = "https://iynlknwijrxtysinppwh.supabase.co";
-    const CHAT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5bmxrbndpanJ4dHlzaW5wcHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNzM0NzQsImV4cCI6MjEwMzk0OTQ3NH0.YK7lzQQWez2OG3uQTZKaOo-mI9oJQYrgHG0PomlwoMQ"; // same anon key used on contact.html / customer-login.html
-    const chatSupabase = window.supabase.createClient(CHAT_SUPABASE_URL, CHAT_SUPABASE_ANON_KEY);
+    // Reuses the page's existing Supabase client (same project/key) to avoid
+    // creating a second GoTrueClient instance.
+    const chatSupabase = window.getAltExpressSupabase ? window.getAltExpressSupabase() : null;
 
     let visitorName  = null;
     let visitorEmail = null;
@@ -3078,6 +3290,12 @@
       cwInput.style.height = 'auto';
       pickerOpen = false;
       emojiPicker.classList.add('hidden');
+
+      if(!chatSupabase){
+        playReceiveSound();
+        addMessage("Sorry, something went wrong sending that. Please try again or use our contact page.", false);
+        return;
+      }
 
       chatSupabase.functions.invoke('send-contact-message', {
         body: {
